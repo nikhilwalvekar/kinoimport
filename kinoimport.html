@@ -1,0 +1,124 @@
+<!--
+Copyright (c) 2014 Synerzip. All rights reserved.
+This code may only be used under the Apache 2.0 style license found at http://www.apache.org/licenses/LICENSE-2.0
+Code distributed by Synerzip as part of its showcase apps built on Polymer https://github.com/Synerzip/kinoscribe
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+
+
+<!--
+Element providing pptx import for kinoscribe kino-slide elements. This creates a file drag area, on whic pptx files 
+can be dragged and import will start.
+
+##### Example
+
+<kino-pptx-import ref="stage"></kino-pttx-import>
+<kino-pres id="stage">
+</kino-pres>
+
+</p>
+@element kino-layout
+@blurb Element providing layouts for kinoscribe kino-slide elements
+@status alpha
+@homepage http://github.com/Synerzip/kinoscribe
+-->
+
+<polymer-element name="kino-pptx-import" attributes="ref">
+
+    <template>
+
+        <style>
+        :host {
+            height: 100%;
+            width: 100%;
+            display:block;
+        }
+        #dragarea {
+            height: 100%;
+            width: 100%;
+            font-size: 200px;
+            background-color: #aaa;
+            color: #666;
+            vertical-align: middle;
+            text-align: center;
+        }
+        </style>
+
+        <section id="dragarea">
+            Drag file here
+        </section>
+
+    </template>
+    <script type="text/javascript" src="ext/zip.js" ></script>
+    <script type="text/javascript" src="ext/deflate.js" ></script>
+    <script type="text/javascript" src="ext/inflate.js" ></script>
+    <script type="text/javascript" src="PPTXImporter.js"></script>
+    <script type="text/javascript" src="OOXMLParser.js"></script>
+    <script type="text/javascript" src="PPTXParser.js"></script>
+    <script type="text/javascript" src="PPTXSlideParser.js"></script>
+    <script>
+
+        Polymer('kino-pptx-import', {
+
+            /**
+             * Reference to kino-pres object. After import presentation will be populated in this container.
+             *
+             * @attribute ref
+             * @type string
+             * @default undefined
+             */
+            ref: undefined,
+
+            attached: function () {
+                // create drag area.
+                console.log("domReady");
+                var self = this;
+                self.style.height = (window.innerHeight - 15) + "px";
+                self.style['line-height'] = (window.innerHeight - 15) + "px";
+                // rescale when window is resized
+                window.addEventListener("resize", function () {
+                    self.style.height = (window.innerHeight - 15) + "px";
+                    self.style['line-height'] = (window.innerHeight - 15) + "px";
+                });
+                self.attachListners();
+            },
+            attachListners: function() {
+                var dragarea = this.$.dragarea;
+                this.addEventListener("dragenter", this.noopHandler, false);
+                this.addEventListener("dragexit", this.noopHandler, false);
+                this.addEventListener("dragover", this.noopHandler, false);
+                this.addEventListener("drop", this.drop, false);
+            },
+            /**
+             * No operation handler. This prevents the event propagation and prevents the
+             * default browser action.
+             * @param event
+             */
+            noopHandler: function(event) {
+                if (event.stopPropagation) {
+                    event.stopPropagation();
+                }
+                if (event.preventDefault) {
+                    event.preventDefault();
+                }
+            },
+            drop: function(event) {
+                event.stopPropagation();
+                event.preventDefault();
+
+                var files = event.dataTransfer.files;
+                console.log("file dropped");
+                console.log(files[0].name);
+                if (/\.pptx$/.test(files[0].name)) {
+                    this.loadFile(files[0]);
+                }
+            },
+            loadFile: function(file) {
+                var importer = new PPTXImporter(file, this);
+
+            }
+        }) ;
+    </script>
+
+</polymer-element>
