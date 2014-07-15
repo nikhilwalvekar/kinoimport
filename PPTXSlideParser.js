@@ -3,7 +3,8 @@ function Shape() {
 	var textContent;
 }
 function Fill() {
-	var color;
+	var type;
+	var colors = [];
 }
 function PPTXSlideParser(name, xmldoc, onSuccess, onFileReadError) {
 	var _api = {}
@@ -80,13 +81,15 @@ function PPTXSlideParser(name, xmldoc, onSuccess, onFileReadError) {
 
 	function parseSolidFill(xmlnode) {
 		lastFill = new Fill();
+		lastFill.type = 'solidFill';
+		lastFill.colors = [];
 		if (lastShape) {
 			lastShape.fill = lastFill;
 		}
 	}
 
 	function parseSRGBColor(xmlnode) {
-		lastFill.color = xmlnode.getAttribute('val');
+		lastFill.colors.push(xmlnode.getAttribute('val'));
 	}
 
 	function parsePlaceHolder(xmlnode) {
